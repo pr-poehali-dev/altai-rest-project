@@ -559,7 +559,12 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-emerald-700 pt-8 text-center text-emerald-100">
-            <p>© 2024 Турбаза "Сосны". Все права защищены.</p>
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <p>© 2024 Турбаза "Сосны". Все права защищены.</p>
+              <a href="/admin" className="text-emerald-300 hover:text-white transition-colors text-sm">
+                Админ-панель
+              </a>
+            </div>
           </div>
         </div>
       </footer>
