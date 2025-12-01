@@ -8,10 +8,78 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date());
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>();
+  const [selectedRoom, setSelectedRoom] = useState<{ id: string; name: string } | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestsCount, setGuestsCount] = useState(1);
+  const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleBooking = async () => {
+    if (!selectedRoom || !guestName || !guestPhone || !checkInDate) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/6b36d050-396a-4045-95a6-d39c9cba8164', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          room_id: selectedRoom.id,
+          room_name: selectedRoom.name,
+          guest_name: guestName,
+          guest_phone: guestPhone,
+          check_in_date: checkInDate.toISOString().split('T')[0],
+          check_out_date: checkOutDate?.toISOString().split('T')[0],
+          guests_count: guestsCount,
+          comment: comment
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно!',
+          description: 'Ваше бронирование принято. Мы свяжемся с вами в ближайшее время.',
+        });
+        setDialogOpen(false);
+        setGuestName('');
+        setGuestPhone('');
+        setComment('');
+        setGuestsCount(1);
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось создать бронирование',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением к серверу',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const rooms = [
     {
@@ -208,12 +276,18 @@ const Index = () => {
                       <span className="text-3xl font-bold text-emerald-600">{room.price} ₽</span>
                       <span className="text-gray-500">/сутки</span>
                     </div>
-                    <Dialog>
+                    <Dialog open={dialogOpen && selectedRoom?.id === room.id} onOpenChange={(open) => {
+                      setDialogOpen(open);
+                      if (open) setSelectedRoom({ id: room.id, name: room.name });
+                    }}>
                       <DialogTrigger asChild>
                         <Button 
                           className="bg-emerald-600 hover:bg-emerald-700"
                           disabled={!room.available}
-                          onClick={() => setSelectedRoom(room.id)}
+                          onClick={() => {
+                            setSelectedRoom({ id: room.id, name: room.name });
+                            setDialogOpen(true);
+                          }}
                         >
                           Забронировать
                         </Button>
@@ -223,29 +297,69 @@ const Index = () => {
                           <DialogTitle>Бронирование номера {room.name}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Дата заезда</Label>
+                              <Calendar
+                                mode="single"
+                                selected={checkInDate}
+                                onSelect={setCheckInDate}
+                                className="rounded-md border"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Дата выезда</Label>
+                              <Calendar
+                                mode="single"
+                                selected={checkOutDate}
+                                onSelect={setCheckOutDate}
+                                className="rounded-md border"
+                              />
+                            </div>
+                          </div>
                           <div className="space-y-2">
-                            <Label>Выберите даты</Label>
-                            <Calendar
-                              mode="single"
-                              selected={date}
-                              onSelect={setDate}
-                              className="rounded-md border"
+                            <Label htmlFor="name">Ваше имя *</Label>
+                            <Input 
+                              id="name" 
+                              placeholder="Иван Иванов" 
+                              value={guestName}
+                              onChange={(e) => setGuestName(e.target.value)}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="name">Ваше имя</Label>
-                            <Input id="name" placeholder="Иван Иванов" />
+                            <Label htmlFor="phone">Телефон *</Label>
+                            <Input 
+                              id="phone" 
+                              placeholder="+7 (999) 123-45-67" 
+                              value={guestPhone}
+                              onChange={(e) => setGuestPhone(e.target.value)}
+                            />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="phone">Телефон</Label>
-                            <Input id="phone" placeholder="+7 (999) 123-45-67" />
+                            <Label htmlFor="guests">Количество гостей</Label>
+                            <Input 
+                              id="guests" 
+                              type="number" 
+                              min="1"
+                              value={guestsCount}
+                              onChange={(e) => setGuestsCount(Number(e.target.value))}
+                            />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="comment">Комментарий</Label>
-                            <Textarea id="comment" placeholder="Особые пожелания..." />
+                            <Textarea 
+                              id="comment" 
+                              placeholder="Особые пожелания..." 
+                              value={comment}
+                              onChange={(e) => setComment(e.target.value)}
+                            />
                           </div>
-                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                            Отправить заявку
+                          <Button 
+                            className="w-full bg-emerald-600 hover:bg-emerald-700"
+                            onClick={handleBooking}
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
                           </Button>
                         </div>
                       </DialogContent>
