@@ -1,3 +1,5 @@
 {
+  "export-bookings": "https://functions.poehali.dev/64d37066-1f30-4a3b-8d57-7d5e28136b26",
+  "send-notification": "https://functions.poehali.dev/f1670c7f-a63f-4cb8-8fdc-aa8ed07496c6",
   "bookings": "https://functions.poehali.dev/6b36d050-396a-4045-95a6-d39c9cba8164"
 }

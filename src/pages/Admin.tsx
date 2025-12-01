@@ -97,14 +97,27 @@ const Admin = () => {
                 <p className="text-sm text-gray-600">Турбаза "Сосны"</p>
               </div>
             </div>
-            <Button 
-              variant="outline"
-              onClick={() => window.location.href = '/'}
-              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-            >
-              <Icon name="Home" size={18} className="mr-2" />
-              На главную
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  const url = 'https://functions.poehali.dev/64d37066-1f30-4a3b-8d57-7d5e28136b26';
+                  window.open(url, '_blank');
+                }}
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              >
+                <Icon name="FileDown" size={18} className="mr-2" />
+                Экспорт в Excel
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/'}
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              >
+                <Icon name="Home" size={18} className="mr-2" />
+                На главную
+              </Button>
+            </div>
           </div>
         </div>
       </header>

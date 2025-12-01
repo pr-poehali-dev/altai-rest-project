@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Send notification email",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "room_name": "Люкс Кедр",
+        "guest_name": "Иван Тестов",
+        "guest_phone": "+7 999 123 45 67",
+        "check_in_date": "2024-12-15",
+        "check_out_date": "2024-12-20",
+        "guests_count": 2,
+        "comment": "Тестовое уведомление"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -54,6 +54,22 @@ const Index = () => {
       const data = await response.json();
 
       if (response.ok) {
+        fetch('https://functions.poehali.dev/f1670c7f-a63f-4cb8-8fdc-aa8ed07496c6', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            room_name: selectedRoom.name,
+            guest_name: guestName,
+            guest_phone: guestPhone,
+            check_in_date: checkInDate.toISOString().split('T')[0],
+            check_out_date: checkOutDate?.toISOString().split('T')[0],
+            guests_count: guestsCount,
+            comment: comment
+          })
+        }).catch(() => {});
+
         toast({
           title: 'Успешно!',
           description: 'Ваше бронирование принято. Мы свяжемся с вами в ближайшее время.',

@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "Export all bookings to Excel",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
